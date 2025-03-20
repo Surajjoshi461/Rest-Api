@@ -14,9 +14,10 @@ export async function AuthVerification(req: CustomRequest, res: Response, next: 
     const authHeader = req.headers.authorization;
     let token = authHeader ? authHeader.split(" ")[1] : null;
 
-    // If no token in headers, check cookies
-    if (!token && req.cookies?.token) {
-        token = req.cookies.token;
+    // If no token in headers, check cookies. i handle it for both header and for cookie
+    if (!token && req.cookies?.authToken) {
+        //get token from http-only cookies
+        token = req.cookies.authToken;
     }
 
     if (!token) {
