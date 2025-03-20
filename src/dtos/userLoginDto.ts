@@ -1,4 +1,4 @@
-import { LoginRequestType } from "../types/loginRequestType"
+import { LoginRequestType } from "../types/request/loginRequestType"
 
 export default class UserLoginDto {
     email: string

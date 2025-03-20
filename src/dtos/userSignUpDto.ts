@@ -1,4 +1,4 @@
-import { SignUpRequest } from "../types/signUpRequest";
+import { SignUpRequest } from "../types/request/signUpRequest";
 
 export class UserSignUpDto {
   email: string;

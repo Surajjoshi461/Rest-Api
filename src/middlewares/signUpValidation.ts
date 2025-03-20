@@ -1,27 +1,32 @@
 import { NextFunction, Request, Response } from "express";
-import { ApiResponse, EmptyObject } from "../helper/apiResponse";
-import { SignUpRequest } from "../types/signUpRequest";
-import { SignUpResponse } from "../types/signUpResponse";
+import HttpStatus from 'http-status-codes';
+
+import { ApiResponse, EmptyObject } from "../helper/apiResponse/apiResponse";
+import { SignUpRequest } from "../types/request/signUpRequest";
+import { SignUpResponse } from "../types/response/signUpResponse";
+import { ExpressError } from "../helper/errorHandler/expressError";
+import constant from "../constant";
+import CustomRequest from "../helper/customerRequest/CustomRequest";
 
 export async function signUpValidation(
-  req: Request<EmptyObject, ApiResponse<SignUpResponse>, SignUpRequest>,
-  res: Response<ApiResponse<SignUpResponse>>,
+  req: CustomRequest<EmptyObject, SignUpResponse, SignUpRequest>,
+  _res: Response<ApiResponse<SignUpResponse>>,
   next: NextFunction
 ) {
   try {
     const { firstName, lastName, email, password } = req.body;
     if (!email || !firstName || !lastName || !password) {
-      return next(Error("All fields are required"));
+      return next(new ExpressError(HttpStatus.FORBIDDEN, constant.VALIDATION.UNAUTHORIZE));
     }
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
-      return next(new Error("Please provide correct email"));
+      return next(new ExpressError(HttpStatus.FORBIDDEN, constant.VALIDATION.UNAUTHORIZE));
     }
     if (password.length < 6) {
-      return next(new Error("Password must be at least 6 characters"));
+      return next(new ExpressError(HttpStatus.FORBIDDEN, constant.VALIDATION.UNAUTHORIZE))
     }
     next();
   } catch (error) {
-    return next(`Error in signUpValidation. Error: ${error}`);
+    return next(new ExpressError(HttpStatus.FORBIDDEN, constant.VALIDATION.UNAUTHORIZE));
   }
 }

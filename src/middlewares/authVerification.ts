@@ -1,9 +1,15 @@
 import { NextFunction, Request, Response } from "express";
+import HttpStatus from 'http-status-codes';
+
 import UserRepository from "../repositories/userRepository";
 import { UserType } from "../types/userType";
 import AuthTokenVerification from "../utils/authTokenVerification";
+import { ExpressError } from "../helper/errorHandler/expressError";
+import constant from "../constant";
+import CustomRequest from "../helper/customerRequest/CustomRequest";
+import { UserAuthTokenRequest } from "../types/UserAuthTokenRequest";
 
-export async function AuthVerification(req: Request, res: Response, next: NextFunction) {
+export async function AuthVerification(req: CustomRequest, res: Response, next: NextFunction) {
     const userRepository = new UserRepository();
     const authHeader = req.headers.authorization;
     let token = authHeader ? authHeader.split(" ")[1] : null;
@@ -14,23 +20,22 @@ export async function AuthVerification(req: Request, res: Response, next: NextFu
     }
 
     if (!token) {
-        return res.status(401).json({ message: "Unauthorized" });
+        return next(new ExpressError(HttpStatus.FORBIDDEN, constant.VALIDATION.TOKEN_MISSING))
     }
     try {
-        const decoded = await AuthTokenVerification.getUser(token);
+        const decoded: UserAuthTokenRequest = await AuthTokenVerification.getUser(token);
         if (!decoded) {
-            return res.status(401).json({ message: "Session expired" });
+            return next(new ExpressError(HttpStatus.FORBIDDEN, constant.VALIDATION.UNAUTHORIZE))
         }
-
-        const user: UserType | null = await userRepository.findUserByEmail(req.body.email);
+        const user: UserType | null = await userRepository.findUserByUserId(decoded.userId);
         if (!user) {
-            return res.status(401).json({ message: "Session expired" });
+            return next(new ExpressError(HttpStatus.FORBIDDEN, constant.VALIDATION.UNAUTHORIZE))
         }
         if (user.sessionId !== token) {
-            return res.status(401).json({ message: "Session expired" });
+            return next(new ExpressError(HttpStatus.FORBIDDEN, constant.VALIDATION.TOKEN_EXPIRED))
         }
         next();
     } catch (error) {
-        return next(`Invalid token. Error: ${error}` );
+        return next(new ExpressError(HttpStatus.FORBIDDEN, constant.VALIDATION.UNAUTHORIZE))
     }
 }

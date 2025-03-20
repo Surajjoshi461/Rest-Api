@@ -12,6 +12,14 @@ export default class UserRepository {
 
     }
 
+    public async findUserByUserId(userId: string): Promise<UserType | null> {
+        const userRepo = AppDataSource.getRepository(User);
+        return await userRepo.findOne({
+            where: { userId: userId },
+        });
+
+    }
+
     public async updateSessionToken(userDetail: UserType) {
         const userRepo = AppDataSource.getRepository(User);
         return await userRepo.save(userDetail);

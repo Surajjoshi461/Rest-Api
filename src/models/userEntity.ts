@@ -11,20 +11,20 @@ export class User {
     @PrimaryGeneratedColumn("uuid")
     userId!: string;
 
-    @Column({ nullable: false })
+    @Column({ type: 'text', nullable: false })
     firstName!: string;
 
-    @Column({ nullable: false })
+    @Column({ type: 'text', nullable: false })
     lastName!: string;
 
-    @Column({ nullable: false })
+    @Column({ type: 'text', nullable: false })
     email!: string;
 
-    @Column({ nullable: false })
+    @Column({ type: 'text', nullable: false })
     password!: string;
 
-    @Column({ nullable: false })
-    sessionId!: string ;
+    @Column({type: 'text',  nullable: false })
+    sessionId!: string;
 
     @CreateDateColumn()
     createdAt!: Date;
